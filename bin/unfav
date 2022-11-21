@@ -1,0 +1,5 @@
+#!/bin/sh
+
+currentwallpaper=`cat $HOME/.current-wallpaper | rev | cut -d "/" -f 1 | rev`
+rm $HOME/Wallpapers/wallpapers/favorites/$currentwallpaper
+echo "Attempted to unfavorite $currentwallpaper."

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+currentwallpaper=`cat $HOME/.current-wallpaper`
+cp $currentwallpaper $HOME/Wallpapers/wallpapers/favorites/
+echo "Attempted to favorite $currentwallpaper."

@@ -1,15 +1,43 @@
-hello!!!
+hello!
 
 these are the wallpapers i use.
 
-### folder explanation:
-cherrypicked - my personal favorites from minimal and geometric (all working with wal)
-minimal - minimal
-geometric - geometric
-keyborb - keyborb
-firewatch - wallpapers from the video game firewatch
-geometric/broken :( - pictures that wal doesn't like (minimal still has some broken photos)
+### folder explanation
 
-most wallpapers taken from KraXen72#9190 in the unixporn discord - http://github.com/KraXen72
+#### sources - the source files (GIMP .xcf) if i make a wallpaper and decide saving the project is a good idea
+
+    - these aren't organized
+
+#### bin - some scripts that make my wallpaper life easier
+
+    - alacritty_xr_color_scheme - change alacritty colors based on xresources
+
+    - fav - move wallpaper to favorites folder (requires full path used on `wallpaper`)
+
+    - unfav - like the above, but opposite
+
+    - wallpaper - changes the wallpaper and sets xresources and pywalfox and blah blah blah it does the things use it it's nice
+
+#### wallpapers - the actual wallpapers
+
+    - favorites - my personal favorites (all working with wal, good colorschemes)
+
+    - minimal - minimal
+
+    - geometric - geometric
+
+    - keyborb - keyborb
+
+    - keyborb/sus - copyfringe inrightment, not uploaded to github
+
+    - miscdump - if i download wallpaper dumps, and haven't yet organized them (probably never will), this is where they go
+
+    - firewatch - wallpapers from the video game firewatch
+
+    - geometric/broken :( - pictures that wal doesn't like (minimal and miscdump still have some broken photos)
+
+
+### credits (dm to be added OR for a takedown request)
+the base for this repo taken from KraXen72#9190 in the unixporn discord - http://github.com/KraXen72
 
 -powwu (with love)
