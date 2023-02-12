@@ -1,0 +1,40 @@
+#!/bin/sh
+# by powwu :D
+
+
+function sr {
+    find "$1" -type d -regex ".*\s+.*" | sort -R | tail -1 | while read file
+    do
+	      if [ -d "$file" ]
+	      then
+            newfile=$( echo "$file" | tr " " "_" )
+            file=$( echo "$file" | tr " " "\ " )
+            echo "$file"
+            echo "$newfile"
+            ls "$newfile" || mv "$file" "$newfile"
+            rm -r "$file"
+            sr $1
+        fi
+    done
+
+    find "$1" -type f -regex ".*\s+.*" | sort -R | tail -1 | while read file
+    do
+        newfile=$( echo "$file" | tr " " "_" )
+        echo "$file"
+        echo "$newfile"
+        mv "$file" "$newfile"
+        sr $1
+    done
+}
+
+if [ -z "$1" ] 
+then
+    echo "usage: $0 [directory with subdirectories that have whitespace]\n\nremember, this script is **fully recursive**"
+    exit 1
+else
+    sr $1
+fi
+
+
+
+exit

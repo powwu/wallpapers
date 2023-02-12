@@ -1,26 +1,58 @@
-
 #!/bin/bash
 
 # based off of https://github.com/FilipLitwora/dotfiles/blob/master/.local/bin/wallpaper -powwu
 
 #find random wallpaper or if specified and set it as wallpaper using pywal
 
-export dpi=$(cat /home/james/.dpi)
+export dpi=$( cat /home/james/.dpi )
 
-dir="$1"
+arg1="$1"
+execname=$(echo $0 | rev | cut -d / -f 1 | rev)
+
+
+function fail_case {
+    find $arg1 | grep -E "^\S+\.(jpe?g|png|gif|bmp)$" > /dev/null || { echo "supplied argument $1 has no supported files. exiting...";  ps -C "$execname" -o pid= | xargs kill;}
+    echo "supplied file $1 doesn't appear to be a supported file. retrying command..."
+    find_wallpaper $arg1
+    ps -C "$execname" -o pid= | xargs kill
+
+}
 
 function apply_wallpaper {
-	if [ -d "$1" ] # if directory
-    		then
-        		ls $1 |sort -R |tail -1 |while read file; do
-               dir=$dir/$file
-	        	   apply_wallpaper $dir # recursive so it goes down directories completely
-        		done
-  else # if file 
-  	 wal -i $1
-     feh --bg-fill $1
-     echo "$1" > $HOME/.current-wallpaper
-	fi
+        wal -i $1 2> /dev/null || fail_case $1
+        feh --bg-fill $1 
+        echo "$1" > $HOME/.current-wallpaper
+        cp $HOME/.cache/wal/colors.Xresources $HOME/.Xresources
+        echo "Xft.dpi: $dpi" >> $HOME/.Xresources
+        pywalfox update
+        alacritty_xr_color_scheme ~/.config/alacritty/alacritty.yml
+        spicetify update
+        pywal-discord
+        xrdb -merge $HOME/.Xresources
+
+        #https://github.com/FilipLitwora/pywal-discord
+        pywal-discord
+
+#        spicetify update
+
+
+        color=$(sed 's/\#//' <<< $foreground)
+        echo $color
+        ratbagctl "Logitech G403 Prodigy Wired/Wireless Gaming Mouse" led 0 set color $color
+
+        ratbagctl "Logitech G403 Prodigy Wired/Wireless Gaming Mouse" led 1 set color $color
+}
+
+function find_wallpaper {
+    if [ -d "$1" ] # if directory
+    then
+        ls $1 | sort -R | tail -1 | while read file
+        do
+            find_wallpaper $1/$file # recursive so it goes down directories completely
+        done
+    else # if file
+        apply_wallpaper $1
+  	fi
 }
 
 if [ -z "$1" ] 
@@ -28,32 +60,8 @@ then
     echo "usage: $0 [path/to/images] or [path/to/image]"
     exit 1
 else
-    apply_wallpaper $1
+    find_wallpaper $1
 fi
 
 
-cp $HOME/.cache/wal/colors.Xresources $HOME/.Xresources
-echo "Xft.dpi: $dpi" >> $HOME/.Xresources
-pywalfox update
-python ~/.local/bin/alacritty_xr_color_scheme ~/.config/alacritty/alacritty.yml
-spicetify update
-pywal-discord
-xrdb -merge $HOME/.Xresources
-#sleep 1
-i3-msg restart && i3-msg restart # gotta do it twice or else it hangs sometimes... :(
 
-#https://github.com/FilipLitwora/pywal-discord
-#pywal-discord 
-
-
-#spicetify update
-
-#reload bspwm border colors
-
-#bspc config normal_border_color "${foreground}"
-#bspc config focused_border_color "${color2}"
-#color=$(sed 's/\#//' <<< $background)
-#echo $color
-#ratbagctl "Logitech G403 Prodigy Wired/Wireless Gaming Mouse" led 0 set color $color
-
-#ratbagctl "Logitech G403 Prodigy Wired/Wireless Gaming Mouse" led 1 set color $color
