@@ -1,3 +1,6 @@
+**update 2023-03-12 -- I now keep the wallpapers in encrypted archives. the password is in the `pw` file.** if you don't know how to extract the archives, contact me and i'll help you out
+
+
 hello!
 
 these are the wallpapers i use.
