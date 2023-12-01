@@ -4,7 +4,7 @@
 
 #find random wallpaper or if specified and set it as wallpaper using pywal
 
-export dpi=$( cat /home/james/.dpi )
+export dpi=$( cat ~/.dpi )
 
 arg1="$1"
 execname=$(echo $0 | rev | cut -d / -f 1 | rev)
@@ -21,19 +21,29 @@ function fail_case {
 function apply_wallpaper {
         wal -i $1 2> /dev/null || fail_case $1
         feh --bg-fill $1 
+	#pkill swaybg
+	#swaybg -m fill -i $1 &
+	swww img --transition-step 20 --transition-fps=120 $1
         echo "$1" > $HOME/.current-wallpaper
         cp $HOME/.cache/wal/colors.Xresources $HOME/.Xresources
         echo "Xft.dpi: $dpi" >> $HOME/.Xresources
+        echo "Xcursor.theme: macOS-BigSur" >> $HOME/.Xresources
         pywalfox update
+	wal-telegram -g
         alacritty_xr_color_scheme ~/.config/alacritty/alacritty.yml
-        spicetify update
-        pywal-discord
-        xrdb -merge $HOME/.Xresources
 
         #https://github.com/FilipLitwora/pywal-discord
-        pywal-discord
+        
+	$HOME/Wallpapers/bin/pywal-discord
+	spicetify update
+	#pidof spotify && spicetify watch -s & # stupid solution to automatic reload bug 1
+        xrdb -merge $HOME/.Xresources
 
-#        spicetify update
+
+	
+	#https://github.com/poach3r/pywal-obsidianmd
+	pywal-obsidianmd "/home/james/obsidian"
+
 
 
         color=$(sed 's/\#//' <<< $foreground)
@@ -41,6 +51,18 @@ function apply_wallpaper {
         ratbagctl "Logitech G403 Prodigy Wired/Wireless Gaming Mouse" led 0 set color $color
 
         ratbagctl "Logitech G403 Prodigy Wired/Wireless Gaming Mouse" led 1 set color $color
+
+	echo '
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+}
+
+element-icon {
+    background-color: inherit;
+}
+' >> ~/.cache/wal/colors-rofi-dark.rasi # hotfix for black text on rofi
+
 }
 
 function find_wallpaper {
