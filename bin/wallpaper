@@ -1,58 +1,69 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# based off of https://github.com/FilipLitwora/dotfiles/blob/master/.local/bin/wallpaper -powwu
+# Wallpaper Manager Script
+# Based on https://github.com/FilipLitwora/dotfiles/blob/master/.local/bin/wallpaper
+# Disclaimer: This file was reorganized with the help of generative AI 2025-06-23
 
-#find random wallpaper or if specified and set it as wallpaper using pywal
+# ===== CONFIGURATION =====
+export DPI=$(cat ~/.dpi)
+WALLPAPER_HISTORY="$HOME/.wallpaper-hist"
+CURRENT_WALLPAPER_FILE="$HOME/.current-wallpaper"
+CURRENT_WALLPAPER_LINK="$HOME/.current-wallpaper-ln"
+FIREFOX_PROFILE_DIR="/home/james/.mozilla/firefox/tnu80h8o.dev-edition-default"
+FIREFOX_IMG_PATH="$FIREFOX_PROFILE_DIR/storage/default/moz-extension+++3007d506-2cc7-4ca5-a444-3bf008000893^userContextId=4294967295/idb/3647222921wleabcEoxlt-eengsairo.files/2"
+OBSIDIAN_DIR="$HOME/Obsidian"
 
-export dpi=$( cat ~/.dpi )
+# ===== HELPER FUNCTIONS =====
 
-arg1="$1"
-execname=$(echo $0 | rev | cut -d / -f 1 | rev)
-
-
-function fail_case {
-    find $arg1 | grep -E "^\S+\.(jpe?g|png|gif|bmp)$" > /dev/null || { echo "supplied argument $1 has no supported files. exiting...";  ps -C "$execname" -o pid= | xargs kill;}
-    echo "supplied file $1 doesn't appear to be a supported file. retrying command..."
-    find_wallpaper $arg1
-    ps -C "$execname" -o pid= | xargs kill
-
+# Display usage information
+show_usage() {
+    echo "Usage: $0 [path/to/images] or [path/to/image]"
+    exit 1
 }
 
-function apply_wallpaper {
-        wal -i $1 2> /dev/null || fail_case $1
-        feh --bg-fill $1 
-	#pkill swaybg
-	#swaybg -m fill -i $1 &
-	swww img --transition-step 20 --transition-fps=120 $1
-        echo "$1" > $HOME/.current-wallpaper
-        cp $HOME/.cache/wal/colors.Xresources $HOME/.Xresources
-        echo "Xft.dpi: $dpi" >> $HOME/.Xresources
-        echo "Xcursor.theme: macOS-BigSur" >> $HOME/.Xresources
-        pywalfox update
-	wal-telegram -g
-        alacritty_xr_color_scheme ~/.config/alacritty/alacritty.yml
+# Check if file is a supported image format
+is_supported_image() {
+    local file="$1"
+    [[ "$file" =~ \.(jpe?g|png|gif|bmp)$ ]]
+}
 
-        #https://github.com/FilipLitwora/pywal-discord
-        
-	$HOME/Wallpapers/bin/pywal-discord
-	spicetify update
-	#pidof spotify && spicetify watch -s & # stupid solution to automatic reload bug 1
-        xrdb -merge $HOME/.Xresources
+# Handle failure cases
+handle_failure() {
+    local path="$1"
+    local execname=$(basename "$0")
 
+    if [ -d "$path" ]; then
+        if ! find "$path" | grep -E "^\S+\.(jpe?g|png|gif|bmp)$" > /dev/null; then
+            echo "Supplied directory $path has no supported files. Exiting..."
+            ps -C "$execname" -o pid= | xargs kill
+        fi
+    else
+        echo "Supplied file $path doesn't appear to be a supported file. Retrying command..."
+        find_wallpaper "$path"
+        ps -C "$execname" -o pid= | xargs kill
+    fi
+}
 
-	
-	#https://github.com/poach3r/pywal-obsidianmd
-	pywal-obsidianmd "/home/james/obsidian"
+# Update Firefox theme
+update_firefox() {
+    local wallpaper="$1"
+    # Update Firefox wallpaper
+    rm -f "$FIREFOX_IMG_PATH"
+    convert -resize 160x90 "$wallpaper" "$FIREFOX_IMG_PATH"
 
+    # Update Pywalfox
+    pywalfox update
+}
 
+# Update system themes
+update_system_themes() {
+    # Update Xresources
+    cp "$HOME/.cache/wal/colors.Xresources" "$HOME/.Xresources"
+    echo "Xft.dpi: $DPI" >> "$HOME/.Xresources"
+    xrdb -merge "$HOME/.Xresources"
 
-        color=$(sed 's/\#//' <<< $foreground)
-        echo $color
-        ratbagctl "Logitech G403 Prodigy Wired/Wireless Gaming Mouse" led 0 set color $color
-
-        ratbagctl "Logitech G403 Prodigy Wired/Wireless Gaming Mouse" led 1 set color $color
-
-	echo '
+    # Fix rofi colors
+    echo '
 element-text {
     background-color: inherit;
     text-color:       inherit;
@@ -62,28 +73,92 @@ element-icon {
     background-color: inherit;
 }
 ' >> ~/.cache/wal/colors-rofi-dark.rasi # hotfix for black text on rofi
-
 }
 
-function find_wallpaper {
-    if [ -d "$1" ] # if directory
-    then
-        ls $1 | sort -R | tail -1 | while read file
-        do
-            find_wallpaper $1/$file # recursive so it goes down directories completely
+# Update application themes
+update_application_themes() {
+    # Update Discord
+    "$HOME/Wallpapers/bin/pywal-discord" -p "$HOME/.config/vesktop/themes/"
+
+    # Update Mako
+    "$HOME/Wallpapers/bin/pywal-mako"
+
+    # Update Spotify
+    spicetify apply -n || spicetify backup apply
+    if pidof .spotify-wrapped; then
+        spicetify watch -s &
+    fi
+
+    # Update Telegram
+    python ~/.local/share/telegram-pywal/pallete-gen.py
+
+    # Update Discord
+    themecord -p
+
+    # Update Obsidian
+    "$HOME/Wallpapers/bin/pywal-obsidianmd" "$OBSIDIAN_DIR"
+
+    # Update Emacs
+    emacsclient -e "(load-theme 'ewal-spacemacs-modern)"
+
+    # Update Alacritty
+    rm -f ~/.config/alacritty/alacritty.toml
+    nix-shell -p python3Packages.pyyaml --run '~/Wallpapers/bin/alacritty_xr_color_scheme ~/.config/alacritty/alacritty.yml' && alacritty migrate
+}
+
+# Update hardware
+update_hardware() {
+    # Update mouse LED colors
+    local color=$(sed 's/\#//' <<< $foreground)
+    ratbagctl "Logitech G403 Prodigy Wired/Wireless Gaming Mouse" led 0 set color $color
+    ratbagctl "Logitech G403 Prodigy Wired/Wireless Gaming Mouse" led 1 set color $color
+}
+
+# Apply wallpaper and update all themes
+apply_wallpaper() {
+    local wallpaper="$1"
+
+    # Save wallpaper history
+    cat "$CURRENT_WALLPAPER_FILE" >> "$WALLPAPER_HISTORY" 2>/dev/null
+
+    # Set wallpaper with pywal
+    wal -i "$wallpaper" 2>/dev/null || handle_failure "$wallpaper"
+
+    # Set wallpaper with swww
+    swww img --transition-step 20 --transition-fps=120 "$wallpaper"
+
+    # Update wallpaper references
+    echo "$wallpaper" > "$CURRENT_WALLPAPER_FILE"
+    rm -f "$CURRENT_WALLPAPER_LINK"
+    ln -s "$wallpaper" "$CURRENT_WALLPAPER_LINK"
+
+    # Update all themes
+    update_system_themes
+    update_application_themes
+    update_firefox "$wallpaper"
+    update_hardware
+}
+
+# Find and set wallpaper
+find_wallpaper() {
+    local path="$1"
+
+    if [ -d "$path" ]; then
+        # If directory, pick a random file
+        ls "$path" | sort -R | tail -1 | while read file; do
+            find_wallpaper "$path/$file" # recursive to traverse directories
         done
-    else # if file
-        apply_wallpaper $1
-  	fi
+    else
+        # If file, apply it as wallpaper
+        apply_wallpaper "$path"
+    fi
 }
 
-if [ -z "$1" ] 
-then
-    echo "usage: $0 [path/to/images] or [path/to/image]"
-    exit 1
+# ===== MAIN SCRIPT =====
+
+# Check if argument is provided
+if [ -z "$1" ]; then
+    show_usage
 else
-    find_wallpaper $1
+    find_wallpaper "$1"
 fi
-
-
-

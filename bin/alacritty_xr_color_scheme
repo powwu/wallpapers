@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 ## taken from https://github.com/MuntashirAkon/dotfiles/blob/master/.local/bin/alacritty_xr_color_scheme -powwu
 
