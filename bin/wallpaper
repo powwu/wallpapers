@@ -90,7 +90,7 @@ update_application_themes() {
     fi
 
     # Update Telegram
-    ~/Wallpapers/bin/walogram
+    ~/Wallpapers/bin/walogram -B
 
     # Update Discord
     themecord -p
