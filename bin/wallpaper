@@ -90,7 +90,7 @@ update_application_themes() {
     fi
 
     # Update Telegram
-    python ~/.local/share/telegram-pywal/pallete-gen.py
+    ~/Wallpapers/bin/walogram
 
     # Update Discord
     themecord -p
