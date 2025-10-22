@@ -9,7 +9,7 @@
 
 cachedir="${XDG_CACHE_HOME:-$HOME/.cache}/walogram"
 themename="wal.tdesktop-theme"
-constants="/usr/local/share/walogram/constants.tdesktop-theme"
+constants="${XDG_CACHE_HOME:-$HOME/.config}/walogram/constants.tdesktop-theme"
 
 msg() {
 	printf "[1;34m ::[0m %s\\n" "$@"
