@@ -124,8 +124,8 @@ apply_wallpaper() {
     # Set wallpaper with pywal
     wal -i "$wallpaper" 2>/dev/null || handle_failure "$wallpaper"
 
-    # Set wallpaper with swww
-    swww img --transition-step 20 --transition-fps=120 "$wallpaper"
+    # Set wallpaper with awww
+    awww img --transition-step 10 --transition-fps=120 "$wallpaper"
 
     # Update wallpaper references
     echo "$wallpaper" > "$CURRENT_WALLPAPER_FILE"

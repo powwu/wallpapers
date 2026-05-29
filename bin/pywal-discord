@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 path="$HOME/.config/BetterDiscord/themes"
 theme="default"
 config="/usr/share/pywal-discord"
