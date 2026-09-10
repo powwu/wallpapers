@@ -11,7 +11,7 @@ CURRENT_WALLPAPER_FILE="$HOME/.current-wallpaper"
 CURRENT_WALLPAPER_LINK="$HOME/.current-wallpaper-ln"
 FIREFOX_PROFILE_DIR="/home/james/.mozilla/firefox/tnu80h8o.dev-edition-default"
 FIREFOX_IMG_PATH="$FIREFOX_PROFILE_DIR/storage/default/moz-extension+++3007d506-2cc7-4ca5-a444-3bf008000893^userContextId=4294967295/idb/3647222921wleabcEoxlt-eengsairo.files/2"
-OBSIDIAN_DIR="$HOME/Obsidian"
+OBSIDIAN_DIR="$HOME/Inventory"
 
 # ===== HELPER FUNCTIONS =====
 
