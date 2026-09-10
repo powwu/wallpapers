@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #set variable "workdir" to the path where this script is located
 workdir="$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")"
