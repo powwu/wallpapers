@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+dbus-send \
+    --session \
+    --type=method_call \
+    --dest="io.github.TheWisker.Cavasik" \
+    "/io/github/TheWisker/Cavasik" \
+    "io.github.TheWisker.Cavasik.set_fg_colors" \
+    string:"${HOME}/.cache/wal/colors.rgb"
