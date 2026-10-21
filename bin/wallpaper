@@ -104,6 +104,9 @@ update_application_themes() {
     # Update Alacritty
     rm -f ~/.config/alacritty/alacritty.toml
     nix-shell -p python3Packages.pyyaml --run '~/Wallpapers/bin/alacritty_xr_color_scheme ~/.config/alacritty/alacritty.yml' && alacritty migrate
+
+    # Cavasik
+    "$HOME/Wallpapers/bin/pywal-cavasik"
 }
 
 # Update hardware
